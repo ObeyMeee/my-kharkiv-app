@@ -1,6 +1,5 @@
 package ua.com.andromeda.mykharkiv
 
-import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -17,23 +16,21 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavOptions
-import androidx.navigation.NavType
-import androidx.navigation.Navigator
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
 import ua.com.andromeda.mykharkiv.data.LocalCategoriesDataProvider
 import ua.com.andromeda.mykharkiv.ui.MyKharkivHomeScreen
 import ua.com.andromeda.mykharkiv.ui.MyKharkivViewModel
+import ua.com.andromeda.mykharkiv.ui.PlaceDetailsScreen
 import ua.com.andromeda.mykharkiv.ui.PlacesListScreen
 
 enum class MyKharkivScreen {
     Start,
     PlacesList,
     PlaceDetails
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -56,26 +53,37 @@ fun MyKharkivApp() {
     )
 
     Scaffold(
-        topBar = { MyKharkivTopAppBar(title = "Who knows", {}) }
+        topBar = {
+            MyKharkivTopAppBar(
+                title = "Who knows",
+                onBackClicked = { navController.navigateUp() }
+            )
+        }
     ) { innerPadding ->
         NavHost(navController = navController, startDestination = startScreen) {
             composable(route = startScreen) {
                 MyKharkivHomeScreen(
                     categories = uiState.categories,
+                    updateCurrentCategory = { category -> viewModel.updateCurrentCategory(category) },
+                    navigateToPlacesList = { navController.navigate(MyKharkivScreen.PlacesList.name) },
                     modifier = Modifier
                         .padding(innerPadding)
                         .fillMaxSize()
                 )
             }
-            composable(
-                route = "${MyKharkivScreen.PlacesList.name}/{id}",
-                arguments = listOf(navArgument("id") {
-                    type = NavType.LongType
-                })
-            ) { backStackEntry ->
-                val id = backStackEntry.arguments?.getLong("id") ?: -1
+            composable(route = MyKharkivScreen.PlacesList.name) {
                 PlacesListScreen(
-                    places = LocalCategoriesDataProvider.findById(id).recommendedPlaces,
+                    places = LocalCategoriesDataProvider.findById(uiState.currentCategory.id).recommendedPlaces,
+                    updateCurrentPlace = { place -> viewModel.updateCurrentPlace(place) },
+                    navigateToPlaceDetails = { navController.navigate(MyKharkivScreen.PlaceDetails.name) },
+                    modifier = Modifier
+                        .padding(innerPadding)
+                        .fillMaxSize()
+                )
+            }
+            composable(route = MyKharkivScreen.PlaceDetails.name) {
+                PlaceDetailsScreen(
+                    place = uiState.currentPlace,
                     modifier = Modifier
                         .padding(innerPadding)
                         .fillMaxSize()

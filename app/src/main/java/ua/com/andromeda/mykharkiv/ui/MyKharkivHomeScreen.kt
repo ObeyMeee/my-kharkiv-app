@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
-import ua.com.andromeda.mykharkiv.MyKharkivScreen
 import ua.com.andromeda.mykharkiv.R
 import ua.com.andromeda.mykharkiv.data.LocalCategoriesDataProvider
 import ua.com.andromeda.mykharkiv.data.model.Category
@@ -15,21 +14,25 @@ import ua.com.andromeda.mykharkiv.data.model.Category
 @Composable
 fun MyKharkivHomeScreen(
     categories: List<Category>,
+    updateCurrentCategory: (category: Category) -> Unit,
+    navigateToPlacesList: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     ListItems(
         items = categories,
-        navigateToScreen = MyKharkivScreen.PlacesList,
+        updateCurrentItem = updateCurrentCategory,
+        navigateNext = navigateToPlacesList,
         modifier = modifier
     )
 }
-
 
 @Preview
 @Composable
 fun MyKharkivHomeScreenPreview() {
     MyKharkivHomeScreen(
         categories = LocalCategoriesDataProvider.allCategories,
+        updateCurrentCategory = {},
+        navigateToPlacesList = {},
         modifier = Modifier
             .padding(dimensionResource(R.dimen.padding_medium))
             .fillMaxSize()

@@ -6,20 +6,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
-import ua.com.andromeda.mykharkiv.MyKharkivScreen
 import ua.com.andromeda.mykharkiv.R
-import ua.com.andromeda.mykharkiv.data.LocalCategoriesDataProvider
 import ua.com.andromeda.mykharkiv.data.LocalPlacesDataProvider
 import ua.com.andromeda.mykharkiv.data.model.Place
 
 @Composable
 fun PlacesListScreen(
     places: List<Place>,
-    modifier: Modifier = Modifier
+    updateCurrentPlace: (Place) -> Unit,
+    navigateToPlaceDetails: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     ListItems(
         items = places,
-        navigateToScreen = MyKharkivScreen.PlaceDetails,
+        updateCurrentItem = updateCurrentPlace,
+        navigateNext = navigateToPlaceDetails,
         modifier = modifier
     )
 }
@@ -29,6 +30,8 @@ fun PlacesListScreen(
 fun PlacesListScreenPreview() {
     PlacesListScreen(
         places = LocalPlacesDataProvider.allPlaces,
+        updateCurrentPlace = { },
+        navigateToPlaceDetails = { },
         modifier = Modifier
             .padding(dimensionResource(R.dimen.padding_medium))
             .fillMaxSize()
