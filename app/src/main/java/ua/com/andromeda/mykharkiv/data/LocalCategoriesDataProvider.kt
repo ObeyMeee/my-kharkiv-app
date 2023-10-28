@@ -33,4 +33,8 @@ object LocalCategoriesDataProvider {
             findAllByCategoryId(4)
         )
     )
+
+    fun findById(id: Long): Category {
+        return allCategories.firstOrNull { it.id == id } ?: defaultCategory
+    }
 }
