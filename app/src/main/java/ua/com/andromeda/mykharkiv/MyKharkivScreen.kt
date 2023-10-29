@@ -14,11 +14,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import ua.com.andromeda.mykharkiv.data.LocalCategoriesDataProvider
 import ua.com.andromeda.mykharkiv.ui.MyKharkivHomeScreen
@@ -30,7 +30,6 @@ enum class MyKharkivScreen {
     Start,
     PlacesList,
     PlaceDetails
-
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,24 +37,13 @@ enum class MyKharkivScreen {
 fun MyKharkivApp() {
     val viewModel: MyKharkivViewModel = viewModel()
     val uiState by viewModel.uiState.collectAsState()
-
     val navController = rememberNavController()
-
-    // TODO: test
-//    val currentScreen = MyKharkivScreen.valueOf(
-//        navController.currentBackStackEntry?.destination?.route ?: MyKharkivScreen.Start.name
-//    )
-
-    val backStackEntry by navController.currentBackStackEntryAsState()
     val startScreen = MyKharkivScreen.Start.name
-    val currentScreen = MyKharkivScreen.valueOf(
-        backStackEntry?.destination?.route ?: startScreen
-    )
 
     Scaffold(
         topBar = {
             MyKharkivTopAppBar(
-                title = "Who knows",
+                title = uiState.title,
                 onBackClicked = { navController.navigateUp() }
             )
         }
@@ -70,6 +58,7 @@ fun MyKharkivApp() {
                         .padding(innerPadding)
                         .fillMaxSize()
                 )
+                viewModel.updateTitle("Kharkiv \uD83C\uDDFA\uD83C\uDDE6😎💪")
             }
             composable(route = MyKharkivScreen.PlacesList.name) {
                 PlacesListScreen(
@@ -80,14 +69,16 @@ fun MyKharkivApp() {
                         .padding(innerPadding)
                         .fillMaxSize()
                 )
+                viewModel.updateTitle(stringResource(uiState.currentCategory.nameResId))
             }
             composable(route = MyKharkivScreen.PlaceDetails.name) {
                 PlaceDetailsScreen(
                     place = uiState.currentPlace,
                     modifier = Modifier
-                        .padding(innerPadding)
+                        .padding(dimensionResource(R.dimen.padding_medium))
                         .fillMaxSize()
                 )
+                viewModel.updateTitle(stringResource(uiState.currentPlace.nameResId))
             }
         }
     }

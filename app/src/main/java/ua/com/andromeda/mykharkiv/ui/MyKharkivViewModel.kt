@@ -22,4 +22,11 @@ class MyKharkivViewModel : ViewModel() {
             it.copy(currentCategory = category)
         }
     }
+
+    fun updateTitle(value: String) {
+        _uiState.update {
+            it.copy(title = value)
+        }
+    }
+
 }
