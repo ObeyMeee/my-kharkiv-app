@@ -37,3 +37,16 @@ fun PlacesListScreenPreview() {
             .fillMaxSize()
     )
 }
+
+@Preview(showBackground = true)
+@Composable
+fun PlacesListScreenDarkPreview() {
+    PlacesListScreen(
+        places = LocalPlacesDataProvider.allPlaces,
+        updateCurrentPlace = { },
+        navigateToPlaceDetails = { },
+        modifier = Modifier
+            .padding(dimensionResource(R.dimen.padding_medium))
+            .fillMaxSize()
+    )
+}

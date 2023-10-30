@@ -26,6 +26,19 @@ fun MyKharkivHomeScreen(
     )
 }
 
+@Preview(showBackground = true)
+@Composable
+fun MyKharkivHomeDarkScreenPreview() {
+    MyKharkivHomeScreen(
+        categories = LocalCategoriesDataProvider.allCategories,
+        updateCurrentCategory = {},
+        navigateToPlacesList = {},
+        modifier = Modifier
+            .padding(dimensionResource(R.dimen.padding_medium))
+            .fillMaxSize()
+    )
+}
+
 @Preview
 @Composable
 fun MyKharkivHomeScreenPreview() {
