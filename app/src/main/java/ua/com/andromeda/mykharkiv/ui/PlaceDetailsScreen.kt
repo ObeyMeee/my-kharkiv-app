@@ -4,8 +4,10 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -27,8 +29,8 @@ import androidx.compose.ui.unit.dp
 import ua.com.andromeda.mykharkiv.R
 import ua.com.andromeda.mykharkiv.data.LocalPlacesDataProvider
 import ua.com.andromeda.mykharkiv.data.model.Place
-import ua.com.andromeda.mykharkiv.ui.utils.LinkText
-import ua.com.andromeda.mykharkiv.ui.utils.LinkTextData
+import ua.com.andromeda.mykharkiv.utils.LinkText
+import ua.com.andromeda.mykharkiv.utils.LinkTextData
 
 @Composable
 fun PlaceDetailsScreen(
@@ -40,8 +42,11 @@ fun PlaceDetailsScreen(
         Image(
             painter = painterResource(place.imageResId),
             contentDescription = null,
-            modifier = Modifier.fillMaxWidth(),
-            contentScale = ContentScale.FillWidth
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = 200.dp)
+                .fillMaxHeight(.3f),
+            contentScale = ContentScale.FillBounds
         )
         Row(
             modifier = Modifier.padding(vertical = 16.dp),

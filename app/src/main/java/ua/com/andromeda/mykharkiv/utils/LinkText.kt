@@ -1,4 +1,4 @@
-package ua.com.andromeda.mykharkiv.ui.utils
+package ua.com.andromeda.mykharkiv.utils
 
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.MaterialTheme

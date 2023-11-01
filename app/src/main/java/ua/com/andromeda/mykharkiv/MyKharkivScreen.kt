@@ -10,6 +10,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -19,12 +20,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import ua.com.andromeda.mykharkiv.data.LocalCategoriesDataProvider
 import ua.com.andromeda.mykharkiv.ui.MyKharkivHomeScreen
+import ua.com.andromeda.mykharkiv.ui.MyKharkivUiState
 import ua.com.andromeda.mykharkiv.ui.MyKharkivViewModel
 import ua.com.andromeda.mykharkiv.ui.PlaceDetailsScreen
 import ua.com.andromeda.mykharkiv.ui.PlacesListScreen
+import ua.com.andromeda.mykharkiv.utils.MyKharkivContentType
 
 enum class MyKharkivScreen {
     Start,
@@ -32,18 +35,26 @@ enum class MyKharkivScreen {
     PlaceDetails
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyKharkivApp() {
+fun MyKharkivApp(windowWidthSizeClass: WindowWidthSizeClass) {
     val viewModel: MyKharkivViewModel = viewModel()
     val uiState by viewModel.uiState.collectAsState()
     val navController = rememberNavController()
     val startScreen = MyKharkivScreen.Start.name
-
+    val backStackEntry by navController.currentBackStackEntryAsState()
+    val currentScreen = MyKharkivScreen.valueOf(
+        backStackEntry?.destination?.route ?: startScreen
+    )
+    val contentType = when (windowWidthSizeClass) {
+        WindowWidthSizeClass.Expanded -> MyKharkivContentType.LIST_AND_DETAILS
+        else -> MyKharkivContentType.LIST_ONLY
+    }
     Scaffold(
         topBar = {
             MyKharkivTopAppBar(
-                title = uiState.title,
+                uiState = uiState,
+                contentType = contentType,
+                currentScreen = currentScreen,
                 onBackClicked = { navController.navigateUp() }
             )
         }
@@ -51,25 +62,37 @@ fun MyKharkivApp() {
         NavHost(navController = navController, startDestination = startScreen) {
             composable(route = startScreen) {
                 MyKharkivHomeScreen(
-                    categories = uiState.categories,
-                    updateCurrentCategory = { category -> viewModel.updateCurrentCategory(category) },
-                    navigateToPlacesList = { navController.navigate(MyKharkivScreen.PlacesList.name) },
+                    contentType = contentType,
+                    uiState = uiState,
+                    onCategoryClicked = { category ->
+                        viewModel.updateCurrentCategory(category)
+                        if (contentType == MyKharkivContentType.LIST_ONLY) {
+                            navController.navigate(MyKharkivScreen.PlacesList.name)
+                        }
+                    },
+                    onPlaceClicked = { place ->
+                        viewModel.updateCurrentPlace(place)
+                        navController.navigate(MyKharkivScreen.PlacesList.name)
+                    },
                     modifier = Modifier
                         .padding(innerPadding)
                         .fillMaxSize()
                 )
-                viewModel.updateTitle("Kharkiv \uD83C\uDDFA\uD83C\uDDE6😎💪")
             }
             composable(route = MyKharkivScreen.PlacesList.name) {
                 PlacesListScreen(
-                    places = LocalCategoriesDataProvider.findById(uiState.currentCategory.id).recommendedPlaces,
-                    updateCurrentPlace = { place -> viewModel.updateCurrentPlace(place) },
-                    navigateToPlaceDetails = { navController.navigate(MyKharkivScreen.PlaceDetails.name) },
+                    contentType = contentType,
+                    uiState = uiState,
+                    onPlaceClicked = { place ->
+                        viewModel.updateCurrentPlace(place)
+                        if (contentType == MyKharkivContentType.LIST_ONLY) {
+                            navController.navigate(MyKharkivScreen.PlaceDetails.name)
+                        }
+                    },
                     modifier = Modifier
                         .padding(innerPadding)
                         .fillMaxSize()
                 )
-                viewModel.updateTitle(stringResource(uiState.currentCategory.nameResId))
             }
             composable(route = MyKharkivScreen.PlaceDetails.name) {
                 PlaceDetailsScreen(
@@ -78,7 +101,6 @@ fun MyKharkivApp() {
                         .padding(dimensionResource(R.dimen.padding_medium))
                         .fillMaxSize()
                 )
-                viewModel.updateTitle(stringResource(uiState.currentPlace.nameResId))
             }
         }
     }
@@ -87,17 +109,37 @@ fun MyKharkivApp() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyKharkivTopAppBar(
-    title: String,
+    uiState: MyKharkivUiState,
+    contentType: MyKharkivContentType,
+    currentScreen: MyKharkivScreen,
     onBackClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     CenterAlignedTopAppBar(
         title = {
-            Text(text = title)
+            Text(
+                text = stringResource(
+                    when (currentScreen) {
+                        MyKharkivScreen.Start ->
+                            if (contentType == MyKharkivContentType.LIST_ONLY) R.string.app_title
+                            else uiState.currentCategory.nameResId
+
+                        MyKharkivScreen.PlacesList ->
+                            if (contentType == MyKharkivContentType.LIST_ONLY) uiState.currentCategory.nameResId
+                            else uiState.currentPlace.nameResId
+
+                        MyKharkivScreen.PlaceDetails -> uiState.currentPlace.nameResId
+                    }
+                ),
+                modifier = Modifier.padding(dimensionResource(R.dimen.padding_small))
+            )
         },
         modifier = modifier,
         navigationIcon = {
-            IconButton(onClick = onBackClicked) {
+            IconButton(
+                onClick = onBackClicked,
+                enabled = currentScreen != MyKharkivScreen.Start
+            ) {
                 Icon(
                     imageVector = Icons.Filled.ArrowBack,
                     contentDescription = stringResource(R.string.back_button)

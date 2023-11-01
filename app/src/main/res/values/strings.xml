@@ -1,12 +1,13 @@
 <resources>
     <string name="app_name">MyKharkiv</string>
+    <string name="app_title">Kharkiv \uD83C\uDDFA\uD83C\uDDE6😎💪</string>
     <string name="back_button">Back</string>
 
     <!--    Categories-->
-    <string name="category_1_name">Кав\'ярні</string>
-    <string name="category_2_name">Ресторани</string>
-    <string name="category_3_name">Парки</string>
-    <string name="category_4_name">Торгові центри</string>
+    <string name="category_1_name">Кав\'ярні☕</string>
+    <string name="category_2_name">Ресторани🍕</string>
+    <string name="category_3_name">Парки🌳</string>
+    <string name="category_4_name">Торгові центри🛍️</string>
 
     <!--    Places-->
     <!--    Кав'ярні-->
